@@ -81,30 +81,4 @@ resource "azurerm_key_vault" "kv" {
     public_network_access_enabled = true
 }
 
-# Azure AD Application Registration for the custom connector
-resource "azuread_application_registration" "app" {
-    display_name                = format("%s%s%s", upper(var.environment), "-BGPRINT-APP-", upper(random_string.random.result))
-}
 
-resource "azuread_application_api_access" "app_access" {
-    application_id              = azuread_application_registration.app.id
-    api_client_id               = "00000003-0000-0000-c000-000000000000"
-    scope_ids                   = [
-        "ed11134d-2f3f-440d-a2e1-411efada2502",
-        "5fa075e9-b951-4165-947b-c63396ff0a37",
-        "21f0d9c0-9f13-48b3-94e0-b6b231c7d320"
-    ]
-}
-
-resource "azuread_application_redirect_uris" "redirect_uri" {
-    application_id = azuread_application_registration.app.id
-    type = "Web"
-    redirect_uris = [
-        jsondecode(azapi_resource.custom_connector.output).properties.connectionParameters.token.oAuthSettings.redirectUrl,
-        "https://global.consent.azure-apim.net/redirect"
-    ]
-}
-
-resource "azuread_application_password" "password" {
-    application_id = azuread_application_registration.app.id
-}
