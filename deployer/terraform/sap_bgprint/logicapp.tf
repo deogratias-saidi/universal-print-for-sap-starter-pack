@@ -1,38 +1,38 @@
 resource "azurerm_logic_app_workflow" "logic_app" {
-    name                = format("%s%s-logicapp", lower(var.environment), lower(var.location))
-    location            = azurerm_resource_group.rg.location
-    resource_group_name = azurerm_resource_group.rg.name
-    workflow_version    =  "1.0.0.0"
-    workflow_schema     = "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#"
-    parameters          = {
-        "$connections"  = jsonencode({
-            "${azurerm_resource_group_template_deployment.apiconnection.name}" = {
-                connectionId    = "${jsondecode(azurerm_resource_group_template_deployment.apiconnection.output_content).apiConnectionId.value}"
-                connectionName  = "${azurerm_resource_group_template_deployment.apiconnection.name}"
-                id              = "${azapi_resource.custom_connector.id}"
-            }
-        })
-    }
-    workflow_parameters     = {
-        "$connections"      = jsonencode({
-            defaultValue    = {}
-            type            = "Object"
-        })
-    }
-    depends_on              = [ azurerm_resource_group_template_deployment.apiconnection ]
+  name                = format("%s%s-logicapp", lower(var.environment), lower(var.location))
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  workflow_version    = "1.0.0.0"
+  workflow_schema     = "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#"
+  parameters = {
+    "$connections" = jsonencode({
+      "${azurerm_resource_group_template_deployment.apiconnection.name}" = {
+        connectionId   = "${jsondecode(azurerm_resource_group_template_deployment.apiconnection.output_content).apiConnectionId.value}"
+        connectionName = "${azurerm_resource_group_template_deployment.apiconnection.name}"
+        id             = "${azapi_resource.custom_connector.id}"
+      }
+    })
+  }
+  workflow_parameters = {
+    "$connections" = jsonencode({
+      defaultValue = {}
+      type         = "Object"
+    })
+  }
+  depends_on = [azurerm_resource_group_template_deployment.apiconnection]
 }
 
 resource "azurerm_logic_app_trigger_http_request" "logic_app_trigger" {
-    name                    = "FunctionAppCallee"
-    logic_app_id            = azurerm_logic_app_workflow.logic_app.id 
-    method                  = "POST"
-    schema                  = data.local_file.http_trigger.content
+  name         = "FunctionAppCallee"
+  logic_app_id = azurerm_logic_app_workflow.logic_app.id
+  method       = "POST"
+  schema       = data.local_file.http_trigger.content
 }
 
 resource "azurerm_logic_app_action_custom" "logic_app_action_get_printer_share" {
-    name                = "GetPrinterShare"
-    logic_app_id        = azurerm_logic_app_workflow.logic_app.id
-    body                = <<BODY
+  name         = "GetPrinterShare"
+  logic_app_id = azurerm_logic_app_workflow.logic_app.id
+  body         = <<BODY
     {
         "inputs": {
             "headers": {
@@ -53,9 +53,9 @@ resource "azurerm_logic_app_action_custom" "logic_app_action_get_printer_share" 
 }
 
 resource "azurerm_logic_app_action_custom" "logic_app_action_create_print_job" {
-    name                = "CreatePrintJob"
-    logic_app_id        = azurerm_logic_app_workflow.logic_app.id
-    body                = <<BODY
+  name         = "CreatePrintJob"
+  logic_app_id = azurerm_logic_app_workflow.logic_app.id
+  body         = <<BODY
     {
         "inputs": {
             "headers": {
@@ -92,9 +92,9 @@ resource "azurerm_logic_app_action_custom" "logic_app_action_create_print_job" {
 }
 
 resource "azurerm_logic_app_action_custom" "logic_app_action_create_upload_session_for_printer_share" {
-    name                = "CreateUploadSessionForPrinterShareLoop"
-    logic_app_id        = azurerm_logic_app_workflow.logic_app.id
-    body                = <<BODY
+  name         = "CreateUploadSessionForPrinterShareLoop"
+  logic_app_id = azurerm_logic_app_workflow.logic_app.id
+  body         = <<BODY
     {
         "actions": {
             "CreateUploadSessionForPrinterShare": {
@@ -154,9 +154,9 @@ resource "azurerm_logic_app_action_custom" "logic_app_action_create_upload_sessi
 }
 
 resource "azurerm_logic_app_action_custom" "logic_app_action_start_print_job" {
-    name                = "StartPrintJob"
-    logic_app_id        = azurerm_logic_app_workflow.logic_app.id
-    body                = <<BODY
+  name         = "StartPrintJob"
+  logic_app_id = azurerm_logic_app_workflow.logic_app.id
+  body         = <<BODY
     {
         "inputs": {
             "headers": {

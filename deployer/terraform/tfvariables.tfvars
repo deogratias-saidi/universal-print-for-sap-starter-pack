@@ -22,5 +22,5 @@ virtual_network_id = ""
 subnet_address_prefixes = ""
 
 resource_group_tags = {
-    "CreatedBy": "SAPonAzureBgPrint",
+  "CreatedBy" : "SAPonAzureBgPrint",
 }
