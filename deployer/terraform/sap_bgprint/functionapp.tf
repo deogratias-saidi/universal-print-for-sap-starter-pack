@@ -21,7 +21,7 @@ resource "azurerm_application_insights" "app_insights" {
 
 # Import the existing function app
 resource "azurerm_linux_function_app" "function_app" {
-    name                        = format("%s-%s-functionapp", lower(var.environment), lower(var.location))
+    name                        = "fun-sap-mup-prod"
     location                    = azurerm_resource_group.rg.location
     resource_group_name         = azurerm_resource_group.rg.name
     service_plan_id             = azurerm_service_plan.app_service_plan.id
